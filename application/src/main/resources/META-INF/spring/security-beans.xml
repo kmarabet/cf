@@ -1,0 +1,68 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+             xmlns:beans="http://www.springframework.org/schema/beans"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+          http://www.springframework.org/schema/security
+          http://www.springframework.org/schema/security/spring-security-3.2.xsd"
+             default-lazy-init="true">
+    <global-method-security secured-annotations="enabled" jsr250-annotations="enabled" />
+
+
+	<!--Secure rest web services-->
+    <http auto-config="true" entry-point-ref="restAuthenticationEntryPoint" pattern="/client/**">
+        <intercept-url pattern="/**" access="ROLE_USER" />
+    </http>
+
+	<!--<http auto-config="true" entry-point-ref="restAuthenticationEntryPoint" >-->
+	<http auto-config="true">
+		<intercept-url pattern="/dashboard" access="ROLE_USER"/>
+        <intercept-url pattern="/planning" access="ROLE_ADMIN"/>
+		<!--<intercept-url pattern="/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />-->
+
+		<!--<intercept-url pattern="/client/**" access="ROLE_USER"/>-->
+
+		<!-- Don't set any role restrictions on login -->
+		<!--<intercept-url pattern="/api/authentication/**" access="IS_AUTHENTICATED_ANONYMOUSLY" />-->
+
+		<form-login login-page="/login"/>
+		<!--authentication-failure-url parameter is useless as authentication failure is processed in AuthenticationController.loginFailed()-->
+
+		<!--AuthenticationController.logout() do the job with a json  message in response-->
+		<logout logout-url="/logout"  logout-success-url="/login" invalidate-session="true"/>
+
+	</http>
+
+    <!--<authentication-manager alias="authenticationManager">-->
+	<authentication-manager>
+		<authentication-provider ref="daoAuthenticationProvider"/>
+        <!--<authentication-provider user-service-ref="userDetailsService">
+            <password-encoder ref="passwordEncoder"/>
+        </authentication-provider>-->
+    </authentication-manager>
+
+	<!--Add custom DaoAuthenticationProvider to disable hideUserNotFoundExceptions
+	in order to handle a custom error message when logged in user (login) is not found
+	see com.cf.controller.security.authentication.AuthenticationController.loginFailedUsernameNotFound()-->
+	<beans:bean id="daoAuthenticationProvider"
+				class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+		<beans:property name="userDetailsService" ref="userDetailsService" />
+		<beans:property name="hideUserNotFoundExceptions" value="false"/>
+		<beans:property name="passwordEncoder" ref="passwordEncoder"/>
+	</beans:bean>
+
+	<beans:bean id="authenticationManager"
+						 class="org.springframework.security.authentication.ProviderManager">
+		<beans:property name="providers">
+			<beans:list>
+				<beans:ref local="daoAuthenticationProvider" />
+			</beans:list>
+		</beans:property>
+	</beans:bean>
+
+    <beans:bean id="userDetailsService" class="com.cf.service.security.UserDetailsServiceImpl"/>
+
+    <!-- Common application password encoder -->
+    <beans:bean id="passwordEncoder" class="org.springframework.security.crypto.password.StandardPasswordEncoder"/>
+
+</beans:beans>

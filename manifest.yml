@@ -1,0 +1,9 @@
+---
+applications:
+- name: cf
+  memory: 512M
+  instances: 1
+  host: cf-${random-word}
+  path: application/target/cf.war
+  services:
+      - ta
