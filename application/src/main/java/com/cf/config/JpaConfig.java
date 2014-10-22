@@ -31,11 +31,6 @@ public class JpaConfig {
     @Profile("dev")
     static class DevJpaConfig {}
 
-    @Configuration
-    @PropertySource("classpath:META-INF/spring/persistence_qa.properties")
-    @Profile("qa")
-    static class QaJpaConfig {}
-
     @Resource
     private Environment environment;
 
