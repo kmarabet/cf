@@ -12,6 +12,8 @@ import com.cf.repository.RegistrationRepository;
 import com.cf.repository.UserRepository;
 import com.cf.repository.WorkPlanningRepository;
 import com.cf.utils.DateUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -29,6 +31,8 @@ import java.text.ParseException;
 
 @Service
 public class DbInitializer implements ApplicationListener<ContextRefreshedEvent> {
+
+    private static final Logger logger = LoggerFactory.getLogger(PlanningServiceImpl.class);
 
     static String usersInputFile = "WEB-INF\\data\\users.csv";
     static String institutionsInputFile = "WEB-INF\\data\\institutions.csv";
@@ -65,9 +69,13 @@ public class DbInitializer implements ApplicationListener<ContextRefreshedEvent>
     public void init(ApplicationContext applicationContext) {
         try {
             this.initHardCodedData();
-            /*if (environment.acceptsProfiles("dev", "qa")) {
-                this.initTestDevDataForUsersAndRegistrations(applicationContext);
-            }*/
+            //"dev" profile is set (activated) in web.xml - spring.profiles.default
+            if (environment.acceptsProfiles("dev", "qa")) {
+                logger.info("DEV or QA set properly");
+                //this.initTestDevDataForUsersAndRegistrations(applicationContext);
+            } else {
+                logger.error("DEV or QA not set");
+            }
         } catch (/*IOException |*/ ParseException e) {
             e.printStackTrace();
         }
