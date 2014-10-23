@@ -26,10 +26,10 @@ import java.util.Properties;
 @Lazy
 public class JpaConfig {
 
-    @Configuration
+    /*@Configuration
     @PropertySource("classpath:META-INF/spring/persistence_dev.properties")
     @Profile("dev")
-    static class DevJpaConfig {}
+    static class DevJpaConfig {}*/
 
     @Resource
     private Environment environment;
